@@ -2,7 +2,7 @@
   <NuxtLink :to="`/item/${product.id}`" class="block group h-full">
     <div
       :id="`ProductComponent${product.id}`"
-      class="border border-gray-100 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col overflow-hidden h-full "
+      class="border border-gray-100 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col overflow-hidden h-full  "
     >
 
       <!-- صورة المنتج -->
@@ -19,7 +19,7 @@
       <div class="p-4 flex flex-col flex-1 ">
 
         <!-- العنوان -->
-        <h3 class="text-sm md:text-base font-semibold text-gray-900 truncate hover:text-indigo-600 transition-colors duration-300">
+        <h3 class="text-sm md:text-base font-semibold text-gray-900 truncate hover:text-indigo-600 transition-colors duration-300 ">
           {{ product.title }}
         </h3>
 
@@ -48,7 +48,7 @@
 
         <!-- زر عرض المنتج -->
         <button
-          class="mt-3 w-full py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          class="mt-3 w-full py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
         >
         Show Product
         </button>

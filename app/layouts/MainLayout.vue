@@ -28,39 +28,42 @@ function navigateTo(path) {
           <Icon icon="ic:sharp-install-mobile" width="17" /> App
         </li>
 
-        <!-- Account Menu -->
-        <li
-          @mouseenter="isAccountMenu = true"
-          @mouseleave="isAccountMenu = false"
-          class="relative flex items-center px-2 gap-1 hover:text-[#FF4646] h-full cursor-pointer"
-          :class="isAccountMenu ? 'bg-white border z-40' : 'border border-transparent'"
-        >
-          <Icon icon="ph:user-thin" width="17" />
-          Account
-          <Icon icon="mdi:chevron-down" width="15" class="ml-1" />
+     <!-- Account Menu -->
+<li
+  @click="isAccountMenu = !isAccountMenu"
+  class="relative flex items-center px-2 gap-1 cursor-pointer select-none"
+  :class="isAccountMenu ? 'bg-white border z-40 rounded-b shadow-md text-[#FF4646] p-2 rounded-md' : 'border border-transparent'"
+>
+  <Icon icon="ph:user-thin" width="17" />
+  Account
+  <Icon icon="mdi:chevron-down" width="15" class="ml-1 transition-transform" :class="isAccountMenu ? 'rotate-180' : 'rotate-0'" />
 
-          <transition name="fade">
-            <div
-              v-if="isAccountMenu"
-              class="absolute bg-white w-[220px] text-[#333333] z-50 top-[38px] left-0 border border-t-0 rounded-b shadow-md"
-            >
-              <div class="font-semibold text-[15px] my-4 px-3">Welcome To AliExpress!</div>
-              <div class="flex items-center gap-1 px-3 mb-3">
-                <NuxtLink to="/auth" class="bg-[#FF4646] w-full text-white text-center p-2 rounded-sm font-semibold text-[16px]">
-                  Login / Register
-                </NuxtLink>
-              </div>
-              <div class="border-t">
-                <ul>
-                  <li @click="navigateTo('/orders')" class="text-[13px] py-2 px-4 w-full hover:bg-gray-200 cursor-pointer">
-                    My Orders
-                  </li>
-                  <li class="text-[13px] py-2 px-4 w-full hover:bg-gray-200 cursor-pointer">Sign out</li>
-                </ul>
-              </div>
-            </div>
-          </transition>
-        </li>
+  <!-- Dropdown Menu -->
+  <transition name="fade">
+    <div
+      v-if="isAccountMenu"
+      class="absolute bg-white w-[220px] text-[#333333] z-50 top-[38px] left-0 border border-gray-200 rounded-lg shadow-md mt-1"
+    >
+      <div class="font-semibold text-[15px] my-4 px-3 text-center">Welcome To AliExpress !</div>
+      <div class="flex items-center gap-1 px-3 mb-3">
+        <NuxtLink to="/auth" class="bg-[#FF4646] w-full text-white text-center p-2 rounded-sm font-semibold text-[16px]">
+          Login / Register
+        </NuxtLink>
+      </div>
+      <div class="border border-gray-200">
+        <ul>
+          <li @click="navigateTo('/orders')" class="text-[13px] py-2 px-4 w-full hover:bg-gray-200 cursor-pointer font-bold">
+            My Orders
+          </li>
+          <li @click="signOut" class="text-[13px] py-2 px-4 w-full hover:bg-gray-200 cursor-pointer border border-gray-200 font-bold">
+            Sign out
+          </li>
+        </ul>
+      </div>
+    </div>
+  </transition>
+</li>
+
       </ul>
     </div>
 
@@ -73,7 +76,7 @@ function navigateTo(path) {
         </NuxtLink>
 
         <!-- Search Bar -->
-        <div class="max-w-[750px] w-full md:block hidden relative">
+        <div class="max-w-[750px] w-full md:block hidden relative ">
           <div class="flex items-center border-2 border-[#FF4646] rounded-md w-full">
             <input  
               v-model="searchItem"
@@ -83,8 +86,8 @@ function navigateTo(path) {
               type="text"
             />
             <Icon v-if="isSearching" icon="eos-icons:loading" />
-            <button class="flex items-center h-full p-2 px-4 bg-[#FF4646]">
-              <Icon icon="ph:magnifying-glass" class="text-[25px]" color="#ffffff"/>
+            <button class="flex items-center h-full p-2 px-4 bg-[#FF4646] cursor-pointer">
+              <Icon icon="ph:magnifying-glass" class="text-[25px] " color="#ffffff"/>
             </button>
           </div>
 

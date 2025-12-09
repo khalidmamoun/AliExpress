@@ -78,7 +78,7 @@
         </div>
 
         <!-- SUMMARY + PAYMENT -->
-        <div class="block my-4 md:w-[30%]">
+        <div class="block my-4 md:w-[30%] border border-gray-200 rounded-lg">
           <div id="placeOrder" class="bg-white rounded-lg p-4 shadow">
             <div class="text-2xl font-extrabold mb-2">Summary</div>
 
