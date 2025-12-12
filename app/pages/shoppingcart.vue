@@ -11,9 +11,7 @@
             src="/images/emptycart.png"
             alt="Empty Cart"
           >
-          <p class="text-gray-500 mb-6 text-base">
-            سجّل الدخول لمشاهدة المنتجات التي أضفتها إلى سلتك
-          </p>
+       
           <NuxtLink
             to="/auth"
             class="bg-red-500 hover:bg-red-600 text-white text-lg font-semibold px-12 py-3 rounded-full transition-shadow shadow-md"

@@ -1,82 +1,3 @@
-<script setup>
-import { ref, onMounted } from 'vue'
-import { Icon } from '@iconify/vue'
-import Footer from '~/components/Footer.vue'
-import { useRouter } from 'vue-router'
-import { NuxtLink } from '#components'
-import { supabase } from '~/supabaseClient'
-import { useUserStore } from '~/stores/user.js'
-import { useCartStore } from "~/stores/cart"
-
-
-
-const router = useRouter()
-const userStore = useUserStore()
-
-const isAccountMenu = ref(false)
-const isCartHover = ref(false)
-const isMobileMenu = ref(false)
-const searchItem = ref('')
-const avatar = ref('/images/default-avatar.png')
-
-// تحميل السلة من localStorage عند فتح الصفحة
-onMounted(() => {
-  userStore.loadCart()
-  if (userStore.user?.user_metadata?.avatar) {
-    avatar.value = userStore.user.user_metadata.avatar + '?t=' + new Date().getTime()
-  }
-})
-
-supabase.auth.onAuthStateChange((event, session) => {
-  if (session?.user) {
-    userStore.user = session.user
-    if (session.user.user_metadata?.avatar) {
-      avatar.value = session.user.user_metadata.avatar + '?t=' + new Date().getTime()
-    }
-    // لو فيه سلة للضيف، دمجها مع السلة الخاصة بالمستخدم
-    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
-    guestCart.forEach(item => userStore.addItem(item))
-    localStorage.removeItem('guestCart')
-  } else {
-    userStore.user = null
-    avatar.value = '/images/default-avatar.png'
-    userStore.clearCart() // تفريغ السلة عند تسجيل الخروج
-  }
-})
-
-function isUserLoggedIn() {
-  return !!userStore.user
-}
-
-function navigateTo(path) {
-  router.push(path)
-}
-
-async function switchAccount(provider) {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } }
-  })
-  if (error) console.error(error.message)
-}
-
-async function logout() {
-  await supabase.auth.signOut()
-  userStore.user = null
-  userStore.clearCart()
-}
-
-function toggleCart(product) {
-  userStore.addItem(product)
-}
-
-const cartStore = useCartStore()
-
-onMounted(() => {
-  cartStore.loadCart()
-})
-</script>
-
 <template>
 <div id="MainLayout" class="w-full relative min-h-screen">
 
@@ -135,12 +56,35 @@ onMounted(() => {
   <div class="w-full bg-white mt-4 border-b border-gray-200 border-t">
     <div class="flex items-center gap-4 max-w-[1150px] w-full px-3 mx-auto">
       <NuxtLink to="/" class="flex-shrink-0"><img width="160" src="/images/logo.png" alt="logo" /></NuxtLink>
+      
+      <!-- SEARCH -->
       <div class="flex-grow relative">
         <div class="flex items-center border-2 border-[#FF4646] rounded-md w-full">
-          <input v-model="searchItem" @input="isSearching = searchItem.length > 0" class="w-full placeholder-gray-400 text-sm pl-3 focus:outline-none" placeholder="Search..." type="text"/>
+          <input 
+            v-model="searchItem" 
+            @input="isSearching = searchItem.length > 0" 
+            class="w-full placeholder-gray-400 text-sm pl-3 focus:outline-none" 
+            placeholder="Search..." 
+            type="text"
+          />
           <button class="flex items-center h-full p-2 px-4 bg-[#FF4646]">
             <Icon icon="ph:magnifying-glass" class="text-[22px]" color="#ffffff"/>
           </button>
+        </div>
+
+        <!-- Dropdown نتائج البحث مع صور -->
+        <div v-if="isSearching && filteredProducts.length > 0" class="absolute bg-white w-full mt-1 max-h-64 overflow-auto border border-gray-200 rounded-md z-50">
+          <ul>
+            <li 
+              v-for="product in filteredProducts" 
+              :key="product.id" 
+              class="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer"
+              @click="navigateTo(`/item/${product.id}`); isSearching=false"
+            >
+              <img :src="product.image" class="w-10 h-10 object-contain rounded border" alt="product image"/>
+              <span class="truncate">{{ product.title }}</span>
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -177,6 +121,73 @@ onMounted(() => {
   <Footer/>
 </div>
 </template>
+
+<script setup>
+import { ref, onMounted, computed } from 'vue'
+import { Icon } from '@iconify/vue'
+import Footer from '~/components/Footer.vue'
+import { useRouter } from 'vue-router'
+import { NuxtLink } from '#components'
+import { supabase } from '~/supabaseClient'
+import { useUserStore } from '~/stores/user.js'
+
+const router = useRouter()
+const userStore = useUserStore()
+const isAccountMenu = ref(false)
+const isCartHover = ref(false)
+const isMobileMenu = ref(false)
+const searchItem = ref('')
+const isSearching = ref(false)
+const avatar = ref('/images/default-avatar.png')
+
+// تحميل السلة من localStorage عند فتح الصفحة
+onMounted(() => {
+  userStore.loadCart()
+  if (userStore.user?.user_metadata?.avatar) {
+    avatar.value = userStore.user.user_metadata.avatar + '?t=' + new Date().getTime()
+  }
+})
+
+// Auth state
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session?.user) {
+    userStore.user = session.user
+    if (session.user.user_metadata?.avatar) {
+      avatar.value = session.user.user_metadata.avatar + '?t=' + new Date().getTime()
+    }
+    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]')
+    guestCart.forEach(item => userStore.addItem(item))
+    localStorage.removeItem('guestCart')
+  } else {
+    userStore.user = null
+    avatar.value = '/images/default-avatar.png'
+    userStore.clearCart()
+  }
+})
+
+function isUserLoggedIn() { return !!userStore.user }
+function navigateTo(path) { router.push(path) }
+async function switchAccount(provider) {
+  const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } } })
+  if (error) console.error(error.message)
+}
+async function logout() { await supabase.auth.signOut(); userStore.user=null; userStore.clearCart() }
+
+// PRODUCTS SEARCH
+const allProducts = ref([])
+const filteredProducts = computed(() => {
+  if (!searchItem.value) return []
+  return allProducts.value.filter(p => p.title.toLowerCase().includes(searchItem.value.toLowerCase()))
+})
+
+onMounted(async () => {
+  try {
+    const res = await fetch('https://fakestoreapi.com/products')
+    const data = await res.json()
+    allProducts.value = data.map(p => ({ id: p.id, title: p.title, description: p.description, price: p.price, image: p.image }))
+  } catch (err) { console.error(err) }
+})
+</script>
 
 <style>
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
