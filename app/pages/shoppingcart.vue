@@ -24,19 +24,19 @@
       </div>
 
       <!-- السلة المحتوية على منتجات -->
-      <div v-else-if="checkout.length > 0" class="md:flex gap-6 justify-between mx-auto w-full">
+      <div v-else-if="products.length > 0" class="md:flex gap-6 justify-between mx-auto w-full">
 
         <!-- قائمة المنتجات -->
         <div class="md:w-[68%] space-y-6">
 
           <div class="bg-white rounded-3xl p-6 shadow-md transition-shadow">
             <div class="text-2xl font-bold mb-3 text-gray-800">
-              Shopping Cart [ {{ checkout.length }} ]
+              Shopping Cart [ {{ products.length }} ]
             </div>
           </div>
 
           <div id="Items" class="space-y-4">
-            <div v-for="product in checkout" :key="product.id" class="flex gap-4 items-start bg-green-50 rounded-lg p-4 shadow-sm">
+            <div v-for="product in products" :key="product.id" class="flex gap-4 items-start bg-green-50 rounded-lg p-4 shadow-sm">
               
               <img :src="product.url" class="w-24 h-24 object-contain rounded-lg border" />
 
@@ -92,7 +92,7 @@
       <!-- السلة فارغة لكن المستخدم مسجل دخول -->
       <div v-else class="bg-white rounded-3xl shadow-lg min-h-[500px] flex items-center justify-center">
         <div class="text-center px-6 pb-10">
-    <img src="/images/emptycart.png" alt="">
+          <img src="/images/emptycart.png" alt="">
         </div>
       </div>
 
@@ -102,7 +102,7 @@
 
 <script setup>
 import MainLayout from '~/layouts/MainLayout.vue'
-import { computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useUserStore } from '~/stores/user'
 import { useRouter } from 'vue-router'
 
@@ -110,22 +110,42 @@ const userStore = useUserStore()
 const router = useRouter()
 
 const isUserLoggedIn = computed(() => !!userStore.user)
-const checkout = userStore.checkout
 
+// نسخة reactive محلية للسلة
+const products = ref([])
+
+onMounted(() => {
+  userStore.loadCart()
+  products.value = [...userStore.checkout]  // مزامنة أولية
+})
+
+// تحديث UI عند أي تغيير في الـ store
+watch(() => userStore.checkout, () => {
+  products.value = [...userStore.checkout]
+}, { deep: true })
+
+// زيادة الكمية
 function increaseQuantity(item) {
-  item.quantity = (item.quantity || 1) + 1
-}
-function decreaseQuantity(item) {
-  if (item.quantity > 1) item.quantity -= 1
+  userStore.addItem(item)  // هتزود الكمية في الـ store وتحفظ
 }
 
+// نقصان الكمية
+function decreaseQuantity(item) {
+  if (item.quantity > 1) {
+    item.quantity -= 1
+    userStore.saveCart()
+  } else {
+    removeItem(item)
+  }
+}
+
+// حذف المنتج
 function removeItem(item) {
-  const index = checkout.findIndex(p => p.id === item.id)
-  if (index !== -1) checkout.splice(index, 1)
+  userStore.removeItem(item)
 }
 
 const subtotal = computed(() =>
-  checkout.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0)
+  products.value.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0)
 )
 
 function goToCheckout() {
@@ -133,7 +153,7 @@ function goToCheckout() {
     router.push('/auth')
     return
   }
-  if (checkout.length === 0) return
+  if (products.value.length === 0) return
   router.push('/checkout')
 }
 </script>

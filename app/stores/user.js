@@ -2,7 +2,6 @@ import { defineStore } from "pinia"
 import { ref } from "vue"
 
 export const useUserStore = defineStore("user", () => {
-
   const user = ref(null)
   const checkout = ref([])
 
@@ -19,16 +18,15 @@ export const useUserStore = defineStore("user", () => {
     }
   }
 
-  // إضافة منتج
+  // إضافة منتج أو زيادة الكمية
   function addItem(product) {
     const exists = checkout.value.find(p => p.id === product.id)
-
     if (exists) {
       exists.quantity = (exists.quantity || 1) + 1
     } else {
-      checkout.value.push({...product, quantity: 1})
+      checkout.value.push({ ...product, quantity: 1 })
     }
-    saveCart()     // ← مهم جداً
+    saveCart()
   }
 
   // حذف منتج
@@ -50,5 +48,6 @@ export const useUserStore = defineStore("user", () => {
     removeItem,
     clearCart,
     loadCart,
+    saveCart
   }
 })

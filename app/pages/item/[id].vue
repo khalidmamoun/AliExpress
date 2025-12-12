@@ -86,13 +86,12 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import MainLayout from '~/layouts/MainLayout.vue'
 import { useUserStore } from '~/stores/user'
 
 const userStore = useUserStore()
 const route = useRoute()
-const router = useRouter()
 const productId = Number(route.params.id)
 
 const product = ref(null)
@@ -119,7 +118,9 @@ async function fetchProduct() {
   }
 }
 
+// تحميل السلة من localStorage عند فتح الصفحة
 onMounted(() => {
+  userStore.loadCart()
   fetchProduct()
   updateCartState()
 })
@@ -135,16 +136,15 @@ function handleAddToCart() {
     setTimeout(() => showLoginToast.value = false, 2500)
     return
   }
-  const existing = userStore.checkout.find(p => p.id === product.value.id)
-  if (existing) existing.quantity += 1
-  else userStore.checkout.push({
+
+  userStore.addItem({
     id: product.value.id,
     title: product.value.title,
     price: product.value.price,
-    quantity: 1,
     url: product.value.images[0],
     description: product.value.description
   })
+
   isInCart.value = true
 }
 

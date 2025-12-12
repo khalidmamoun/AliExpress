@@ -27,7 +27,7 @@
                     <span class="text-gray-600">Contact Name:</span>
                     <span class="font-bold">{{ address.name }}</span>
                   </li>
-                      <li class="flex items-center gap-2">
+                  <li class="flex items-center gap-2">
                     <span class="text-gray-600">Phone:</span>
                     <span class="font-bold">{{ address.phone }}</span>
                   </li>
@@ -47,7 +47,6 @@
                     <span class="text-gray-600">Country:</span>
                     <span class="font-bold">{{ address.country }}</span>
                   </li>
-              
                 </ul>
               </div>
             </div>
@@ -64,17 +63,17 @@
           </div>
 
           <!-- Products List -->
-          <div id="Items" class="bg-white rounded-lg p-4 mt-4 space-y-3 ">
+          <div id="Items" class="bg-white rounded-lg p-4 mt-4 space-y-3">
             <div v-if="products.length === 0" class="text-center text-gray-500 py-6">
               Your Cart Is Empty
             </div>
 
             <div v-else>
               <div v-for="product in products" :key="product.id">
-                <CheckoutItem 
-                  :product="product" 
-                  :initialQuantity="product.quantity" 
+                <CheckoutItem
+                  :product="product"
                   @updateQuantity="handleQuantityUpdate"
+                  @removeItem="removeProduct"
                 />
               </div>
             </div>
@@ -104,23 +103,21 @@
               <form @submit.prevent="pay()">
                 <div id="card-element" class="border border-gray-400 p-3 rounded-lg"></div>
                 <p id="card-error" role="alert" class="text-red-700 text-center font-semibold mt-2"></p>
-<button
-  :disabled="isProcessing"
-  type="submit"
-  class="mt-4 w-full text-white text-[21px] font-semibold p-2 rounded-full bg-gradient-to-r from-[#FE630c] to-[#FF3200] flex justify-center items-center"
->
-  <template v-if="isProcessing">
-    <!-- الدائرة في النص -->
-    <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-    </svg>
-  </template>
-  <template v-else>
-    Place Order
-  </template>
-</button>
-
+                <button
+                  :disabled="isProcessing"
+                  type="submit"
+                  class="mt-4 w-full text-white text-[21px] font-semibold p-2 rounded-full bg-gradient-to-r from-[#FE630c] to-[#FF3200] flex justify-center items-center"
+                >
+                  <template v-if="isProcessing">
+                    <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                  </template>
+                  <template v-else>
+                    Place Order
+                  </template>
+                </button>
               </form>
 
               <div class="bg-white rounded-lg p-4 mt-4">
@@ -139,12 +136,14 @@
 </template>
 
 <script setup>
-    import MainLayout from '~/layouts/MainLayout.vue'
+import MainLayout from '~/layouts/MainLayout.vue'
 import CheckoutItem from '~/components/checkoutItem.vue'
 import { Icon } from '@iconify/vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '~/stores/user'
 
-const hasAddress = ref(false)
+const userStore = useUserStore()
+const hasAddress = ref(true)
 const isProcessing = ref(false)
 
 const address = ref({
@@ -156,29 +155,40 @@ const address = ref({
   phone: '01144698632' ,
 })
 
-// إضافة quantity لكل منتج
-const products = ref([
-  { id: 1, title: "هاتف ذكي Galaxy S23", description: "أفضل أداء وسعة تخزين ممتازة", url: "/images/product/0.png", price: 9999, quantity: 1 },
-  { id: 2, title: "سماعات لاسلكية AirPods Pro", description: "صوت واضح وعزل ممتاز للضوضاء", url: "/images/product/1.png", price: 6499, quantity: 1 }
-])
+// المنتجات مربوطة بالسلة من store
+const products = computed(() => userStore.checkout)
 
-// تحديث كمية المنتج عند تغييرها
+// تحديث كمية المنتج
 const handleQuantityUpdate = ({ id, quantity }) => {
-  const product = products.value.find(p => p.id === id)
-  if (product) product.quantity = quantity
+  const product = userStore.checkout.find(p => p.id === id)
+  if (product) {
+    product.quantity = quantity
+    userStore.saveCart()
+  }
+}
+
+// حذف المنتج من السلة
+const removeProduct = (id) => {
+  const product = userStore.checkout.find(p => p.id === id)
+  if (product) userStore.removeItem(product)
 }
 
 // حساب المجموع الكلي
 const total = computed(() =>
-  products.value.reduce((sum, p) => sum + p.price * p.quantity, 0)
+  userStore.checkout.reduce((sum, p) => sum + p.price * p.quantity, 0)
 )
 
+// محاكاة بوابة الدفع
 const pay = () => {
   isProcessing.value = true
-  // هنا منطق بوابة الدفع
   setTimeout(() => {
     alert("Payment processed successfully!")
     isProcessing.value = false
   }, 2000)
 }
+
+// تحميل السلة عند فتح الصفحة
+onMounted(() => {
+  userStore.loadCart()
+})
 </script>
