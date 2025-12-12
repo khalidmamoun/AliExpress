@@ -1,128 +1,162 @@
 <template>
   <MainLayout>
     <div id="ItemPage" class="mt-8 max-w-[1200px] mx-auto px-3">
-      
-      <div class="bg-white rounded-2xl shadow-lg p-6 md:flex gap-8 w-full">
 
-        <!-- ✅ الصور -->
+      <!-- المنتج -->
+      <div v-if="product" class="bg-white rounded-2xl shadow-lg p-6 md:flex gap-8 w-full">
+
+        <!-- الصور -->
         <div class="md:w-[40%] w-full">
-          <!-- الصورة الرئيسية -->
           <div class="border border-gray-200 rounded-xl overflow-hidden">
             <img
               class="object-contain w-full h-[420px] bg-white"
-              :src="currentImage || '/images/product/11.png'"
+              :src="currentImage"
               alt="صورة المنتج"
             />
           </div>
 
-          <!-- ✅ الصور المصغرة -->
-          <div v-if="images.length > 0" class="flex items-center justify-center mt-4 gap-3">
+          <div v-if="product.images.length > 1" class="flex items-center justify-center mt-4 gap-3">
             <img
-              v-for="(image, index) in images"
-              :key="index"
-              @click="currentImage = image"
-              :src="image"
-              width="70"
+              v-for="(img, index) in product.images" 
+              :key="index" 
+              @click="currentImage = img"
+              :src="img" 
+              width="70" 
               class="rounded-lg object-cover border-2 cursor-pointer transition-all duration-300 hover:scale-105"
-              :class="currentImage === image ? 'border-[#FF4646]' : 'border-gray-200'"
+              :class="currentImage === img ? 'border-[#FF4646]' : 'border-gray-200'"
               alt="صورة مصغرة"
             />
           </div>
         </div>
 
-        <!-- ✅ تفاصيل المنتج -->
+        <!-- تفاصيل المنتج -->
         <div class="md:w-[60%] w-full flex flex-col justify-start">
 
-          <!-- ✅ العنوان -->
           <h1 class="text-[20px] font-semibold text-gray-900 mb-2 leading-snug">
-            {{ product.name }}
+            {{ product.title }}
           </h1>
 
-          <!-- ✅ وصف صغير -->
           <p class="text-sm text-gray-500 mb-3">
             {{ product.description }}
           </p>
 
-          <!-- ✅ عرض الخصم -->
-          <div class="inline-flex items-center gap-2 bg-orange-100 text-orange-600 text-xs font-semibold px-3 py-1 rounded-full mb-2 w-fit">
-            ⭐ Extra 5% off
+          <div class="flex flex-wrap gap-1 mt-2 mb-3">
+            <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded">Welcome Deal</span>
+            <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">Top Selling</span>
+            <span class="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">{{ product.rating?.count || 5000 }}+ sold</span>
+            <span class="text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded">Free Shipping</span>
           </div>
 
-          <!-- ✅ التقييم + عدد الطلبات -->
-          <div class="flex items-center gap-2 mb-3 text-sm">
-            <div class="text-yellow-400">★★★★☆</div>
-            <span class="text-gray-500">5</span>
-            <span class="text-gray-400">|</span>
-            <span class="text-gray-500">213 Reviews</span>
-            <span class="text-gray-400">|</span>
-            <span class="text-gray-500">1000+ orders</span>
-          </div>
-
-          <!-- ✅ السعر -->
           <div class="flex items-end gap-3 mb-3">
             <span class="text-3xl font-bold text-black">
-              $ {{ product.price }}
+              {{ priceFormatted }} EGP
             </span>
             <span class="text-sm line-through text-gray-400">
-              $ 32.40
-            </span>
-            <span class="text-xs text-orange-600 font-semibold">
-              70% off
+              {{ oldPriceFormatted }} EGP
             </span>
           </div>
 
-          <!-- ✅ الشحن -->
-          <div class="text-sm text-green-600 mb-1">
-            Free 11-day delivery over £8.28
-          </div>
-          <div class="text-sm text-green-600 mb-6">
-            Free Shipping
-          </div>
-
-          <!-- ✅ زر Add To Cart -->
+          <!-- زر Add to Cart -->
           <button
-            class="w-fit bg-red-500 hover:bg-red-700 text-white px-10 py-3 rounded-md font-semibold transition"
+            class="w-fit px-10 py-3 rounded-md font-semibold transition mt-4"
+            :class="isInCart ? 'bg-green-500 hover:bg-green-600 text-white cursor-default' : 'bg-red-500 hover:bg-red-700 text-white cursor-pointer'"
+            @click="handleAddToCart()"
           >
-            Add to Cart
+            {{ isInCart ? 'Item in Cart' : 'Add to Cart' }}
           </button>
 
         </div>
-
       </div>
+
+      <!-- تحميل -->
+      <div v-else class="text-center text-gray-500 py-20">
+        جاري التحميل...
+      </div>
+
+      <!-- Toast / Popup -->
+      <transition name="fade">
+        <div v-if="showLoginToast" class="fixed bottom-5 right-5 bg-yellow-400 text-black px-6 py-3 rounded-lg shadow-lg">
+          الرجاء تسجيل الدخول أولاً
+        </div>
+      </transition>
+
     </div>
   </MainLayout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import MainLayout from '~/layouts/MainLayout.vue'
+import { useUserStore } from '~/stores/user'
 
-// بيانات المنتج
-const product = {
-  name: 'منتج تجريبي احترافي',
-  description: 'هذا وصف احترافي للمنتج مع تفاصيل جذابة تقنع العميل بالشراء وتوضح المميزات الأساسية.',
-  price: 250
-}
-
-// مصفوفة الصور
-const images = [
-  '/images/product/11.png',
-  '/images/product/12.png',
-  '/images/product/13.png',
-  '/images/product/14.png',
-  '/images/product/15.png'
-]
-
-// الصورة الحالية المعروضة
-const currentImage = ref(images[0])
-
-// التعامل مع صورة قادمة من MainLayout
+const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
-onMounted(() => {
-  if (route.query.img && images.includes(route.query.img)) {
-    currentImage.value = route.query.img
+const productId = Number(route.params.id)
+
+const product = ref(null)
+const currentImage = ref('')
+const isInCart = ref(false)
+const showLoginToast = ref(false)
+
+// دالة التحقق من حالة السلة والمستخدم
+function updateCartState() {
+  if (!product.value) return
+  isInCart.value = userStore.checkout.some(p => p.id === product.value.id)
+}
+
+// جلب المنتج من API
+async function fetchProduct() {
+  try {
+    const res = await fetch(`https://fakestoreapi.com/products/${productId}`)
+    const data = await res.json()
+    product.value = { ...data, images: [data.image] }
+    currentImage.value = product.value.images[0]
+    updateCartState()
+  } catch (err) {
+    console.error('Error fetching product:', err)
   }
+}
+
+onMounted(() => {
+  fetchProduct()
+  updateCartState()
 })
+
+// التنسيقات
+const priceFormatted = computed(() => product.value ? product.value.price.toLocaleString('en-EG') : '')
+const oldPriceFormatted = computed(() => product.value ? (product.value.price * 1.05).toLocaleString('en-EG') : '')
+
+// إضافة للسلة
+function handleAddToCart() {
+  if (!userStore.user) {
+    showLoginToast.value = true
+    setTimeout(() => showLoginToast.value = false, 2500)
+    return
+  }
+  const existing = userStore.checkout.find(p => p.id === product.value.id)
+  if (existing) existing.quantity += 1
+  else userStore.checkout.push({
+    id: product.value.id,
+    title: product.value.title,
+    price: product.value.price,
+    quantity: 1,
+    url: product.value.images[0],
+    description: product.value.description
+  })
+  isInCart.value = true
+}
+
+// مراقبة السلة لتحديث الزرار
+watch(() => userStore.checkout, updateCartState, { deep: true })
 </script>
+
+<style>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>
