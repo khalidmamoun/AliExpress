@@ -2,8 +2,8 @@
   <MainLayout>
     <div id="shoppingCartPage" class="mt-8 max-w-[1200px] mx-auto px-4">
 
-      <!-- السلة الفارغة -->
-      <div v-if="checkout.length === 0" class="bg-white rounded-3xl shadow-lg min-h-[500px] flex items-center justify-center">
+      <!-- المستخدم غير مسجل دخول -->
+      <div v-if="!isUserLoggedIn" class="bg-white rounded-3xl shadow-lg min-h-[500px] flex items-center justify-center">
         <div class="text-center px-6 pb-10">
           <img 
             class="mx-auto mb-6"
@@ -24,7 +24,7 @@
       </div>
 
       <!-- السلة المحتوية على منتجات -->
-      <div v-else class="md:flex gap-6 justify-between mx-auto w-full">
+      <div v-else-if="checkout.length > 0" class="md:flex gap-6 justify-between mx-auto w-full">
 
         <!-- قائمة المنتجات -->
         <div class="md:w-[68%] space-y-6">
@@ -89,6 +89,13 @@
 
       </div>
 
+      <!-- السلة فارغة لكن المستخدم مسجل دخول -->
+      <div v-else class="bg-white rounded-3xl shadow-lg min-h-[500px] flex items-center justify-center">
+        <div class="text-center px-6 pb-10">
+    <img src="/images/emptycart.png" alt="">
+        </div>
+      </div>
+
     </div>
   </MainLayout>
 </template>
@@ -102,10 +109,9 @@ import { useRouter } from 'vue-router'
 const userStore = useUserStore()
 const router = useRouter()
 
-// السلة الحقيقية
+const isUserLoggedIn = computed(() => !!userStore.user)
 const checkout = userStore.checkout
 
-// زيادة/نقص الكمية
 function increaseQuantity(item) {
   item.quantity = (item.quantity || 1) + 1
 }
@@ -113,19 +119,20 @@ function decreaseQuantity(item) {
   if (item.quantity > 1) item.quantity -= 1
 }
 
-// إزالة منتج
 function removeItem(item) {
   const index = checkout.findIndex(p => p.id === item.id)
   if (index !== -1) checkout.splice(index, 1)
 }
 
-// المجموع الكلي
 const subtotal = computed(() =>
   checkout.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0)
 )
 
-// الانتقال لصفحة الدفع
 function goToCheckout() {
+  if (!isUserLoggedIn.value) {
+    router.push('/auth')
+    return
+  }
   if (checkout.length === 0) return
   router.push('/checkout')
 }
