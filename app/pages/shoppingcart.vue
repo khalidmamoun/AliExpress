@@ -56,8 +56,8 @@
                   <span class="font-semibold text-green-800">{{ product.quantity }}</span>
                   <button @click="increaseQuantity(product)" class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200">+</button>
 
-                  <button @click="removeItem(product)" class="ml-auto text-red-600 hover:text-red-800">
-                    🗑️
+                  <button @click="removeItem(product)" class=" cursor-pointer font-bold ml-auto text-red-600 hover:text-red-800">
+                    🗑️Delete
                   </button>
                 </div>
               </div>
