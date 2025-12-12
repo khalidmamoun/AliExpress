@@ -27,6 +27,10 @@
                     <span class="text-gray-600">Contact Name:</span>
                     <span class="font-bold">{{ address.name }}</span>
                   </li>
+                      <li class="flex items-center gap-2">
+                    <span class="text-gray-600">Phone:</span>
+                    <span class="font-bold">{{ address.phone }}</span>
+                  </li>
                   <li class="flex items-center gap-2">
                     <span class="text-gray-600">Address:</span>
                     <span class="font-bold">{{ address.address }}</span>
@@ -43,6 +47,7 @@
                     <span class="text-gray-600">Country:</span>
                     <span class="font-bold">{{ address.country }}</span>
                   </li>
+              
                 </ul>
               </div>
             </div>
@@ -147,7 +152,8 @@ const address = ref({
   address: '123 Street, Cairo',
   zip: '12345',
   city: 'Cairo',
-  country: 'Egypt'
+  country: 'Egypt',
+  phone: '01144698632' ,
 })
 
 // إضافة quantity لكل منتج

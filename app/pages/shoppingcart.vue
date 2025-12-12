@@ -100,8 +100,8 @@
             <span>Total:</span>
             <span>{{ subtotal }} EGP</span>
           </div>
-          <button @click="goToCheckout" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-full transition-shadow shadow-md">
-            Checkout
+          <button @click="goToCheckout" class=" mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-full transition-shadow shadow-md cursor-pointer">
+            Check Out
           </button>
         </div>
       </div>
@@ -113,6 +113,7 @@
 <script setup>
 import MainLayout from '~/layouts/MainLayout.vue'
 import CartItem from '~/components/CartItem.vue'
+
 import { ref, computed, toRaw, onMounted } from 'vue'
 import { useUserStore } from '~/stores/user'
 import { useRouter } from 'vue-router'

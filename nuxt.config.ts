@@ -15,4 +15,11 @@ export default defineNuxtConfig({
       tailwindcss(),
     ],
   },
+
+  runtimeConfig: {
+    public: {
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseAnon: process.env.SUPABASE_ANON_KEY
+    }
+  }
 });
