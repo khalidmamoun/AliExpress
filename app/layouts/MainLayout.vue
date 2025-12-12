@@ -6,6 +6,9 @@ import { useRouter } from 'vue-router'
 import { NuxtLink } from '#components'
 import { supabase } from '~/supabaseClient'
 import { useUserStore } from '~/stores/user.js'
+import { useCartStore } from "~/stores/cart"
+
+
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -66,6 +69,12 @@ async function logout() {
 function toggleCart(product) {
   userStore.addItem(product)
 }
+
+const cartStore = useCartStore()
+
+onMounted(() => {
+  cartStore.loadCart()
+})
 </script>
 
 <template>

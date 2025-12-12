@@ -1,63 +1,54 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import { supabase } from '~/supabaseClient'
+import { defineStore } from "pinia"
+import { ref } from "vue"
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore("user", () => {
+
   const user = ref(null)
   const checkout = ref([])
 
-  // تحميل السلة من Supabase عند تسجيل الدخول
-  const loadCart = async () => {
-    if (!user.value) return
-    const { data, error } = await supabase
-      .from('cart')
-      .select('*')
-      .eq('user_id', user.value.id) // أو user.value.id حسب الـ auth
-    if (!error) checkout.value = data.map(item => ({ ...item, quantity: item.quantity || 1 }))
+  // حفظ السلة في localStorage
+  function saveCart() {
+    localStorage.setItem("cart", JSON.stringify(checkout.value))
   }
 
-  // إضافة عنصر للسلة وحفظه في Supabase
-  const addItem = async (product) => {
-    if (!user.value) return
+  // تحميل السلة عند فتح الصفحة
+  function loadCart() {
+    const saved = localStorage.getItem("cart")
+    if (saved) {
+      checkout.value = JSON.parse(saved)
+    }
+  }
 
-    const existing = checkout.value.find(p => p.product_id === product.id)
-    if (existing) {
-      existing.quantity += 1
-      await supabase
-        .from('cart')
-        .update({ quantity: existing.quantity })
-        .eq('user_id', user.value.id)
-        .eq('product_id', product.id)
+  // إضافة منتج
+  function addItem(product) {
+    const exists = checkout.value.find(p => p.id === product.id)
+
+    if (exists) {
+      exists.quantity = (exists.quantity || 1) + 1
     } else {
-      const newItem = {
-        user_id: user.value.id,
-        product_id: product.id,
-        name: product.title,
-        price: product.price,
-        quantity: 1
-      }
-      checkout.value.push(newItem)
-      await supabase.from('cart').insert(newItem)
+      checkout.value.push({...product, quantity: 1})
     }
+    saveCart()     // ← مهم جداً
   }
 
-  const removeItem = async (product) => {
-    const index = checkout.value.findIndex(p => p.product_id === product.product_id)
-    if (index !== -1) {
-      checkout.value.splice(index, 1)
-      await supabase
-        .from('cart')
-        .delete()
-        .eq('user_id', user.value.id)
-        .eq('product_id', product.product_id)
-    }
+  // حذف منتج
+  function removeItem(product) {
+    checkout.value = checkout.value.filter(p => p.id !== product.id)
+    saveCart()
   }
 
-  const clearCart = async () => {
+  // تفريغ السلة
+  function clearCart() {
     checkout.value = []
-    if (!user.value) return
-    await supabase.from('cart').delete().eq('user_id', user.value.id)
+    saveCart()
   }
 
-  return { user, checkout, loadCart, addItem, removeItem, clearCart }
+  return {
+    user,
+    checkout,
+    addItem,
+    removeItem,
+    clearCart,
+    loadCart,
+  }
 })
