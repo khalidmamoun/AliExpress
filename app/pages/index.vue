@@ -11,7 +11,7 @@
       </div>
 
       <div v-else class="text-center text-gray-500 py-20">
-        {{ loading ? 'جاري التحميل...' : 'لا توجد منتجات حالياً' }}
+        {{ loading ? 'Please Wait..' : 'No Product' }}
       </div>
 
     </div>
