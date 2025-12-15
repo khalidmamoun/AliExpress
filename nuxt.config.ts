@@ -2,19 +2,8 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
-
-  ssr: false,
-
   devtools: { enabled: true },
-
-  nitro: {
-    preset: 'github-pages'
-  },
-
-  app: {
-  baseURL: '/Express/'
-  },
-
+  nitro: {  preset: 'github-pages' }, 
   css: ['./app/assets/css/main.css'],
 
   modules: [
