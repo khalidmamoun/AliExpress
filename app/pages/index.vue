@@ -35,12 +35,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import Slider from '../components/Slider.vue'
-
-// استدعاء المكونات
-import MainLayout from '~/layouts/MainLayout.vue'
 import ProductSlider from '../components/ProductSlider.vue'
-import ProductComponent from '~/components/ProductComponent.vue'
+import ProductComponent from '../components/ProductComponent.vue'
 import SaleCountdown from '../components/SaleCountdown.vue'
+import MainLayout from '../layouts/MainLayout.vue'
 
 // حالة المنتجات
 const products = ref([])
