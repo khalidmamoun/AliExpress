@@ -14,7 +14,7 @@
       <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mt-2">Special Products For You</h2>
     </div>
 
-    
+
     <!-- شبكة المنتجات -->
     <div id="IndexPage" class="max-w-[1350px] mx-auto px-2 mt-8">
       <div v-if="products.length" class="grid xl:grid-cols-5 lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 grid-cols-2 gap-4">
@@ -37,8 +37,8 @@ import { ref, onMounted } from 'vue'
 
 // استدعاء المكونات
 import MainLayout from '~/layouts/MainLayout.vue'
-import Slider from '~/components/Slider.vue'
-import ProductSlider from '~/components/ProductSlider.vue'
+import Slider from '~/components/slider.vue'
+import ProductSlider from '~/components/productSlider.vue'
 import ProductComponent from '~/components/ProductComponent.vue'
 import SaleCountdown from '~/components/SaleCountdown.vue'
 
