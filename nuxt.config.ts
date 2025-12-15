@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-nitro: { preset: 'vercel' },
+  nitro: { preset: 'netlify' }, 
   css: ['./app/assets/css/main.css'],
 
   modules: [
