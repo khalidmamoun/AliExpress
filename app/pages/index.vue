@@ -37,7 +37,7 @@ import { ref, onMounted } from 'vue'
 
 // استدعاء المكونات
 import MainLayout from '~/layouts/MainLayout.vue'
-import Slider from '~/components/Slider/Slider.vue'
+import Slider from '~/components/Slider.vue'
 import ProductSlider from '~/components/ProductSlider.vue'
 import ProductComponent from '~/components/ProductComponent.vue'
 import SaleCountdown from '~/components/SaleCountdown.vue'
