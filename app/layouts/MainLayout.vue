@@ -127,6 +127,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import Footer from '~/components/Footer.vue'
+import Slider from '~/components/Slider.vue'
 import { useRouter } from 'vue-router'
 import { NuxtLink } from '#components'
 import { supabase } from '~/supabaseClient'
