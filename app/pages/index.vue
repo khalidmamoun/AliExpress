@@ -40,7 +40,7 @@ import Slider from '../components/Slider.vue'
 import MainLayout from '~/layouts/MainLayout.vue'
 import ProductSlider from '../components/ProductSlider.vue'
 import ProductComponent from '~/components/ProductComponent.vue'
-import SaleCountdown from '~/components/SaleCountdown.vue'
+import SaleCountdown from '../components/SaleCountdown.vue'
 
 // حالة المنتجات
 const products = ref([])
