@@ -40,6 +40,8 @@ import ProductComponent from '../components/ProductComponent.vue'
 import SaleCountdown from '../components/SaleCountdown.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 
+
+
 // حالة المنتجات
 const products = ref([])
 const loading = ref(true)
