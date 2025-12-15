@@ -34,7 +34,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import Slider from '#components/Slider.vue'
+import Slider from '../components/Slider.vue'
 
 // استدعاء المكونات
 import MainLayout from '~/layouts/MainLayout.vue'
