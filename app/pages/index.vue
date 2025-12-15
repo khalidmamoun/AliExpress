@@ -38,7 +38,7 @@ import Slider from '../components/Slider.vue'
 
 // استدعاء المكونات
 import MainLayout from '~/layouts/MainLayout.vue'
-import ProductSlider from '~/components/ProductSlider.vue'
+import ProductSlider from '../components/ProductSlider.vue'
 import ProductComponent from '~/components/ProductComponent.vue'
 import SaleCountdown from '~/components/SaleCountdown.vue'
 
