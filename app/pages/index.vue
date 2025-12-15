@@ -34,8 +34,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import Slider from '../components/Slider.vue'
-import ProductSlider from '../components/ProductSlider.vue'
 import ProductComponent from '../components/ProductComponent.vue'
 import SaleCountdown from '../components/SaleCountdown.vue'
 import MainLayout from '../layouts/MainLayout.vue'
@@ -62,6 +60,3 @@ async function fetchProducts() {
 onMounted(fetchProducts)
 </script>
 
-<style scoped>
-/* يمكنك إضافة أي تعديلات على التصميم هنا إذا أحببت */
-</style>
