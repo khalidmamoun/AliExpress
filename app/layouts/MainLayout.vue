@@ -131,8 +131,8 @@ import { useRouter } from 'vue-router'
 import { NuxtLink } from '#components'
 import { supabase } from '~/supabaseClient'
 import { useUserStore } from '~/stores/user.js'
-import Slider from '~/components/slider.vue'
-import ProductSlider from '~/components/productSlider.vue'
+import Slider from '~/components/Slider.vue'
+import ProductSlider from '~/components/ProductSlider.vue'
 const router = useRouter()
 const userStore = useUserStore()
 const isAccountMenu = ref(false)
